@@ -9,7 +9,9 @@ def run(date=""):
 	sub_ER=ER[(ER['V2'] == int(date))] #& (ER['sender'] == 155)]
 	g=nx.Graph(zip(sub_ER['sender'],sub_ER['receiver']))
 	ec=nx.eigenvector_centrality(g)
-        deg=g.degree()
+	deg=g.degree()
 	nx.set_node_attributes(g,'degree',deg)
+	bc=nx.betweenness_centrality(g)
 	nx.set_node_attributes(g,'eigcen',ec)
+	nx.set_node_attributes(g,'betweenness',bc)
 	return json_graph.dumps(g)
