@@ -8,7 +8,7 @@
     <meta http-equiv="pragma" content="no-cache" />
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
-    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="./jquery-1.11.1.min.js"></script>
     <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
     <style>
@@ -139,6 +139,55 @@
         
         </style>
         <script>
+		/*
+			Dialog interactivity script component.
+
+				1. The Call to dialog function takes an object that controls the behavior of the
+				   'dialog box' which is opened as a results of this call.
+
+				2. It uses the JQuery shorthand for $(document).ready() - which ensures that the
+				   DOM is ready for use by Javascript.
+
+				3. The action associated with the Submit button adds data present on the two
+				   input fields in the dialog's DIV, into an array of objects.  These objects
+				   is defined as:
+
+					a. date - This value contains the event's incident date
+
+					b. des - The user definition of that incident.
+
+		*/
+
+		/************************************************************************
+			To abstract this out the following things need to be done
+
+			1. Define a DialogBox javascript class with at least the following
+			   properties:
+
+				a. Id of DIV providing the DOM elements to be manipulated.
+
+				b. The name of the property to assigned the array of 
+				   data object representing the information being collected
+				   by the dialog.
+
+				c. A Javascript class constructor which knows how to 
+				   pull the data from the DIV being manipulated.  
+
+			The main part of the Submit logic would be changed to look something like:
+
+			// Check if this is the first time
+			if (typeof($(this.ElementId).data(this.dataProperty) == "undefined") {
+
+				// Add the array and define the first element.
+				$(this.ElementId).data(this.dataProperty, [new this.objectContructor()]);
+			} else {
+
+				// Add another element to the array
+				$(this.ElementId).data(this.dataProperty).push(new this.objectContructor());
+			}
+ 
+		************************************************************************/
+
             $(function() {
               $( "#dialog" ).dialog({
                                     modal: true,
@@ -146,6 +195,7 @@
                                     buttons: {
                                     Submit: function(){ if(typeof $("#dialog").data("position") == "undefined")
                                     {
+					// Creates both the array and the first object
                                         $( "#dialog" ).data("position",[{date:parseInt($('input#date').map(function () 
                                                 { return this.value; 
                                                 }).get(),10),des:$('input#description').map(function () {
@@ -154,15 +204,15 @@
                                     }
                                                                                                                                                                                                                                
                                     else {
-                                    $( "#dialog" ).data("position").push({date:parseInt($('input#date').map(function () {
-                                                return this.value;
+
+					// Appends another object into the array
+					$( "#dialog" ).data("position").push({date:parseInt($('input#date').map(function () 							{ return this.value;
                                                 }).get(),10),des:$('input#description').map(function () {
                                                 return this.value;})});
                                     
                                     }
-                                    
-                                  
-                                    
+
+				    // Closes the dialog after a user has updated the data array	
                                     $( this ).dialog( "close" );
                                     },
                                     Cancel: function() {
@@ -171,9 +221,9 @@
                                     }
                                     });
               
-              
-            
-            
+
+	    // Adds the click handler to the BUTTON with the id of EVENT 
+	    //  This event handler opens the DIALOG DIV
             $( "#events" )
 			.button()
 			.click(function() {
@@ -184,6 +234,7 @@
     <body>
         <div id="container" style="width:700px;border: 0px solid; float: left">
         
+	    <!-- Dialog Box Form -->
             <div id="dialog" title="Timeline">
                 <p>Enter dates of interest:</p>
                 <form>
@@ -191,10 +242,12 @@
                         <label for="name">Date</label><br>
                         <input type="text" name="date" id="date" class="text ui-widget-content ui-corner-all"><br>
                             <label for="date">Description</label><br>
-                            <input type="text" name="description" id="description" value="" class="text ui-widget-content ui-corner-all">
+                            <input type="text" name="description" id="description" value="" class="text ui-widget-content ui-corner-all"></input>
                     </fieldset>
                 </form>
             </div>
+
+	    <!-- Combo Box defining how the timeseries data is displayed -->
             <select class="form-control" id="stats_select" value="one">
                 <option value="one">Scan statistics</option>
                 <option value="two">Modularity</option>
@@ -205,41 +258,46 @@
                 <option value="seven">Assortativity</option>
         </select>
         </div>
+
+	<!-- This DIV doesn't appear to be used.  -->
         <div id="big_container" style="border: 0px solid; margin-left: 730px">
+
+	<!-- The BUTTON to trigger the opening of the 'dialog box' -->
         <button id="events">Add known event<br></button>
+
+	<!-- This DIV holds the Node Graph for a specific week -->
         <div id="container2" style="border: 0px solid;height: 450px;" ></div>
         
+	<!-- This DIV holds the BUTTONS used to move through the data set -->
         <div id="nav">
-        <center>
-         <button type="button" class="btn btn-default" id="left"><span class="glyphicon glyphicon-chevron-left"></span></button>
-         <button type="button" class="btn btn-default" id="right"><span class="glyphicon glyphicon-chevron-right"></span></button>
-            <br>
-             </center>
+			<center>
+				<button type="button" class="btn btn-default" id="left">
+					<span class="glyphicon glyphicon-chevron-left"></span>
+				</button>
+				<button type="button" class="btn btn-default" id="right">
+					<span class="glyphicon glyphicon-chevron-right"></span>
+				</button>
+				<br>
+			</center>
+
+			<!-- This DIV holds the additional display options for Node Graph -->
             <div class="form-inline" margin-left:"100px">
                     <h4>Node color</h4>
                     <div>
-                            <label class="checkbox">
-                                <input type="checkbox" value="eig" class="color">
-                                    Eigenvector Centrality
-                                    </label>
+						<label class="checkbox">
+						<input type="checkbox" value="eig" class="color">Eigenvector Centrality</label>
                     </div>
                      <div>
                             <label class="checkbox">
-                                <input type="checkbox"  value="bc" class="color">
-                                    Betweenness
-                                    </label>
+							<input type="checkbox"  value="bc" class="color">Betweenness</label>
                      </div>
                      <div>
                             <label class="checkbox">
-                                <input type="checkbox"  class="color">
-                                    Degree
-                                    </label>
+								<input type="checkbox"  class="color">Degree</label>
                       </div>
                      <div>
                             <label class="checkbox">
-                                <input type="checkbox" value="sg" class="color">
-                                    Anomalous Subgraphs
-                                    </label>
+							<input type="checkbox" value="sg" class="color">Anomalous Subgraphs</label>
                       </div>
                 
                 </div>
@@ -247,146 +305,202 @@
         </div>
         </div>
         
-        <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+		<!-- Pulls in the D3.JS Script library -->
+        <script type="text/javascript" src="./d3.min.js"></script>
         <script>
+
+			// Display the Scan Statistics data set
             load_stats("one");
        
-            
+            // Initialize the visualization state
             window.id_them=0;
             window.week=0;
             window.id_us=0;
             window.position=[];
 
-            
-           
-            //checks the drop-down menu for statistic
-            
-            
+            // Add the click event handler for the GUI element responsible for managing the
+			// Switching between the Stats Graph being displayed.
             $('#stats_select').click(function(e) {
+								
+								// Get the Statistics Identifier
                                 var stats = $('#stats_select').val();
-                                     d3.select("svg").remove();
-                                     load_stats(stats);
-                                e.preventDefault();// prevent the default anchor functionality
+
+								// Dump the data set being displayed.
+								d3.select("svg").remove();
+
+								// Load the identified data set
+								load_stats(stats);
+
+								// prevent the default anchor functionality
+                                e.preventDefault();
                                 });
-            
-            
-            
+
+			// Save the value used to identify which data set to display
             var stats=$('#stats_select').val();
             
+			// The function responsible for displaying a Statistics data set 
             function load_stats(stats){
                 
-                
-            
+			// Define page layout properties
             var main_margin = {top: 20, right: 80, bottom: 100, left: 40},
             mini_margin = {top: 430, right: 80, bottom: 20, left: 40},
             main_width = 800 - main_margin.left - main_margin.right,
             main_height = 500 - main_margin.top - main_margin.bottom,
             mini_height = 500 - mini_margin.top - mini_margin.bottom;
             
+			// Standardize display formatting of Time values (hours:minutes)
             var formatDate = d3.time.format("%H:%M"),
             parseDate = formatDate.parse,
+
+			// Extract and manipulate Time Information out of the data set
             bisectDate = d3.bisector(function(d) { return d.Uhrzeit; }).left,
             formatOutput0 = function(d) { return formatDate(d.Uhrzeit) + " - " + d.Durchschn + " ms"; },
             formatOutput1 = function(d) { return formatDate(d.Uhrzeit) + " - " + d.Anz; };
             
+			// Define the Ranges for X-Axes of the Main Graph Display and Mini Graph Display
             var main_x = d3.scale.linear()
-            .range([0, main_width]),
+							.range([0, main_width]),
             mini_x = d3.scale.linear()
-            .range([0, main_width]);
+							.range([0, main_width]);
             
+			// Define the Ranges for Y-Axes of the Main Graph Display and Mini Graph Display
+
+			/***************************************************************************
+				Why are two y ranges were created?  (Maybe this is just a note to self...)
+			***************************************************************************/
             var main_y0 = d3.scale.sqrt()
-            .range([main_height, 0]),
+							.range([main_height, 0]),
             main_y1 = d3.scale.sqrt()
-            .range([main_height, 0]),
+							.range([main_height, 0]),
             mini_y0 = d3.scale.sqrt()
-            .range([mini_height, 0]),
+							.range([mini_height, 0]),
             mini_y1 = d3.scale.sqrt()
-            .range([mini_height, 0]);
+							.range([mini_height, 0]);
             
+			// Create the Graph's X Axis element
             var main_xAxis = d3.svg.axis()
-            .scale(main_x)
-            //.tickFormat(d3.time.format("%H:%M"))
-            .orient("bottom"),
+				            .scale(main_x)
+				            .orient("bottom"),
             mini_xAxis = d3.svg.axis()
-            .scale(mini_x)
-            //.tickFormat(d3.time.format("%H:%M"))
-            .orient("bottom");
+				            .scale(mini_x)
+				            .orient("bottom");
             
+			// Create the Graph's Y Axis element
             var main_yAxisLeft = d3.svg.axis()
-            .scale(main_y0)
-            .orient("left");
+						            .scale(main_y0)
+						            .orient("left");
             main_yAxisRight = d3.svg.axis()
-            .scale(main_y1)
-            .orient("right");
+					            .scale(main_y1)
+					            .orient("right");
+
+			/***************************************************************************
+				Variable and function (brush) shouldn't have the same name.  These 
+				values should become two different properties of the Time Series object 
+				being inserted into a page.  Additionally, this Object's constructor 
+				should actually create the needed additional SVG elements.  So, the 
+				constructor should require an ID for the container DIV.
+
+				The Dialog Object should be added to this object as it needs that
+				function.
+
+				Most of the code from here upto the open SCRIPT tag should be integrated
+				into this new object.
+			***************************************************************************/
             
+			// Defines the object used to manage the scrubber window on the mini
+			// Full data set display graph
+
             var brush = d3.svg.brush()
             .x(mini_x)
             .on("brush", brush);
             
+			// Defines the both curves on the larger graph
             var main_line0 = d3.svg.line()
-            .interpolate("monotone")
-            .x(function(d) { return main_x(d.Uhrzeit); })
-            .y(function(d) { return main_y0(d.Durchschn); });
+					            .interpolate("monotone")
+					            .x(function(d) { return main_x(d.Uhrzeit); })
+					            .y(function(d) { return main_y0(d.Durchschn); });
             
             var main_line1 = d3.svg.line()
-            .interpolate("monotone")
-            .x(function(d) { return main_x(d.Uhrzeit); })
-            .y(function(d) { return main_y1(d.Anz); });
+					            .interpolate("monotone")
+					            .x(function(d) { return main_x(d.Uhrzeit); })
+					            .y(function(d) { return main_y1(d.Anz); });
             
+            // Defines both curves on the mini/scrubber window
             var mini_line0 = d3.svg.line()
-            .x(function(d) { return mini_x(d.Uhrzeit); })
-            .y(function(d) { return mini_y0(d.Durchschn); });
+					            .x(function(d) { return mini_x(d.Uhrzeit); })
+					            .y(function(d) { return mini_y0(d.Durchschn); });
             
             var mini_line1 = d3.svg.line()
-            .x(function(d) { return mini_x(d.Uhrzeit); })
-            .y(function(d) { return mini_y1(d.Anz); });
+					            .x(function(d) { return mini_x(d.Uhrzeit); })
+					            .y(function(d) { return mini_y1(d.Anz); });
                 
+            // No longer used?
             var time_line = d3.svg.line()
-                .x(function(d) { return mini_x(d.Uhrzeit); })
-                .y(function(d) { return main_height; });
+				                .x(function(d) { return mini_x(d.Uhrzeit); })
+                				.y(function(d) { return main_height; });
                 
-            
+            // Create the SVG element for the two graphs prepresenting the time series
+			// data set, the mini - full data set viewer and larger - 'detailed' view.
             var svg = d3.select("#container").append("svg")
-            .attr("width", main_width + main_margin.left + main_margin.right)
-            .attr("height", main_height + main_margin.top + main_margin.bottom)
-            .attr("id","main");
-            
+			            .attr("width", main_width + main_margin.left + main_margin.right)
+            			.attr("height", main_height + main_margin.top + main_margin.bottom)
+			            .attr("id","main");
+
+            // Define the clip path so that the 'zoomed' graph will only be displayed
+			// the visible area of the graph.
             svg.append("defs").append("clipPath")
-            .attr("id", "clip")
-            .append("rect")
-            .attr("width", main_width)
-            .attr("height", main_height);
+            			.attr("id", "clip")
+            			.append("rect")
+            			.attr("width", main_width)
+            			.attr("height", main_height);
             
+			// Main is the SVG element which defines visible area of the graph
             var main = svg.append("g")
             .attr("transform", "translate(" + main_margin.left + "," + main_margin.top + ")");
             
+			// Mini is the SVG element which defines the full data set viewer
             var mini = svg.append("g")
             .attr("transform", "translate(" + mini_margin.left + "," + mini_margin.top + ")");
             
+			// Loads data from the SS_DUMP python script hosted in the Tangelo server  
             d3.json("ss_dump", function(error, data) {
-                   var stats=$('#stats_select').val();
-                   data.forEach(function(d) {
 
+					// Identify which statistical data set to process
+                   	var stats=$('#stats_select').val();
+
+					// Transform the raw data records into an 'abstracted' data structure used
+					// to display the two curves.
+                   	data.forEach(function(d) {
+
+
+								// Connected Components
                                 if (stats=='four'){
                                 d.Uhrzeit = d.x;
                                 d.Durchschn = d.cc;
                                 //d.Anz = d.them;
                                 }
+								// Density
                                 else if (stats=='five'){
                                 d.Uhrzeit = d.x;
                                 d.Durchschn = d.density.toFixed(10);
                                 
                                 }
+								// Average Clustering Coefficient
                                 else if (stats=='six'){
                                 d.Uhrzeit = d.x;
                                 d.Durchschn = d.transitivity;
                                 
                                 }
-
+								// Assortativity
                                 else if (stats=='seven'){
                                     d.Uhrzeit=d.x;
                                     d.Durchschn=d.assortativity;
                                 }
+								// Fall through for:
+								//		Scan statistics
+								//		Modularity
+								//		Graph Compression
+
                                 else {
                                 d.Uhrzeit = d.x;
                                 d.Durchschn = d.us
@@ -395,44 +509,51 @@
                                 }
                                 });
                    
-                   data.sort(function(a, b) {
+					// Sort the data set in ascending time stamps order
+					data.sort(function(a, b) {
                              return a.Uhrzeit - b.Uhrzeit;
                              });
                   
                    
-                   main_x.domain([data[0].Uhrzeit, data[data.length - 1].Uhrzeit]);
-                   main_y0.domain(d3.extent(data, function(d) { return d.Durchschn; }));
-                   //main_y0.domain([0.1, d3.max(data, function(d) { return d.Durchschn; })]);
-                   main_y1.domain(d3.extent(data, function(d) { return d.Anz; }));
-                   mini_x.domain(main_x.domain());
-                   mini_y0.domain(main_y0.domain());
-                   mini_y1.domain(main_y1.domain());
+					// Set the Domain & Ranges for the Main Graph's Axes 	
+					main_x.domain([data[0].Uhrzeit, data[data.length - 1].Uhrzeit]);
+					main_y0.domain(d3.extent(data, function(d) { return d.Durchschn; }));
+					main_y1.domain(d3.extent(data, function(d) { return d.Anz; }));
+
+					// Set the Domain & Ranges for the full data set viewer axes
+					mini_x.domain(main_x.domain());
+					mini_y0.domain(main_y0.domain());
+					mini_y1.domain(main_y1.domain());
                    
-                   main.append("path")
-                   .datum(data)
-                   .attr("clip-path", "url(#clip)")
-                   .attr("class", "line line0")
-                   .attr("d", main_line0);
+					// Draw the 'line' defined by the data set within the clipping path
+					main.append("path")
+						.datum(data)
+						.attr("clip-path", "url(#clip)")
+						.attr("class", "line line0")
+						.attr("d", main_line0);
                    
-                   main.append("path")
-                   .datum(data)
-                   .attr("clip-path", "url(#clip)")
-                   .attr("class", "line line1")
-                   .attr("d", main_line1);
+					main.append("path")
+						.datum(data)
+						.attr("clip-path", "url(#clip)")
+						.attr("class", "line line1")
+						.attr("d", main_line1);
                    
-                   main.append("g")
-                   .attr("class", "x axis")
-                   .attr("transform", "translate(0," + main_height + ")")
-                   .call(main_xAxis);
+					// Create the x-axis of the larger graph
+					main.append("g")
+						.attr("class", "x axis")
+						.attr("transform", "translate(0," + main_height + ")")
+						.call(main_xAxis);
                    
-                   main.append("g")
-                   .attr("class", "y axis axisLeft")
-                   .call(main_yAxisLeft)
-                   .append("text")
-                   .attr("transform", "rotate(-90)")
-                   .attr("y", 6)
-                   .attr("dy", ".71em")
-                    .style("text-anchor", "end");
+					
+					// Create the y-axis of the larger graph
+					main.append("g")
+						.attr("class", "y axis axisLeft")
+						.call(main_yAxisLeft)
+						.append("text")
+						.attr("transform", "rotate(-90)")
+						.attr("y", 6)
+						.attr("dy", ".71em")
+						.style("text-anchor", "end");
                    
                    
                    /*main.append("g")
@@ -447,21 +568,25 @@
                    .text("them");
                    */
                     
+                   // Create the x-axis of the mini/scrubber graph
                    mini.append("g")
                    .attr("class", "x axis")
                    .attr("transform", "translate(0," + mini_height + ")")
                    .call(main_xAxis);
                    
+                   // Create the 'line' on the mini/scrubber graph
                    mini.append("path")
                    .datum(data)
                    .attr("class", "line")
                    .attr("d", mini_line0);
                    
+                   // Create the 'line' on the mini/scrubber graph
                    mini.append("path")
                    .datum(data)
                    .attr("class", "line")
                    .attr("d", mini_line1);
                    
+                   // Create the 'zoom' window overlay for the mini/scrubber graph 
                    mini.append("g")
                    .attr("class", "x brush")
                    .call(brush)
@@ -469,7 +594,7 @@
                    .attr("y", -6)
                    .attr("height", mini_height + 7);
                     
-                   
+                   // Create the element used to manage the points of interest on the large graph
                    var focus = main.append("g")
                    .attr("class", "focus")
                    .style("display", "none");
@@ -492,22 +617,27 @@
                    .attr("x1", main_width - 6)
                    .attr("x2", main_width + 6);
                    
+                   // Create the point of intersection marker on the first 'line'
                    focus.append("circle")
                    .attr("class", "y0")
                     .attr("r", 4);
                    
+                   // Create the label for that point of intersection
                    focus.append("text")
                    .attr("class", "y0")
                    .attr("dy", "-1em");
                    
+                   // Create the point of intersection marker on the second 'line'
                    focus.append("circle")
                    .attr("class", "y1")
                    .attr("r", 4);
                    
+                   // Create the label for that point of intersection
                    focus.append("text")
                    .attr("class", "y1")
                    .attr("dy", "-1em");
                    
+                   // Add the support for user interactivity with the main graph
                    main.append("rect")
                    .attr("class", "overlay")
                    .attr("width", main_width)
@@ -517,12 +647,15 @@
                    .on("mousemove", mousemove)
                    .on("click",mouseclicker);
                    
+                   // Mouse Move Event Handler function to provide feedback to the user showing the intersection points on the graph
                    function mousemove() {
                    var x0 = main_x.invert(d3.mouse(this)[0]),
                    i = bisectDate(data, x0, 1),
                    d0 = data[i - 1],
                    d1 = data[i],
                    d = x0 - d0.Uhrzeit > d1.Uhrzeit - x0 ? d1 : d0;
+                   
+                   // Update the visual feedback elements as the user moves the mouse
                    focus.select("circle.y0").attr("transform", "translate(" + main_x(d.Uhrzeit) + "," + main_y0(d.Durchschn) + ")");
                    focus.select("text.y0").attr("transform", "translate(" + main_x(d.Uhrzeit) + "," + main_y0(d.Durchschn) + ")").text(d.Durchschn);
                    focus.select("circle.y1").attr("transform", "translate(" + main_x(d.Uhrzeit) + "," + main_y1(d.Anz) + ")");
@@ -532,20 +665,21 @@
                    focus.select(".y1").attr("transform", "translate(" + main_width*-1 + ", " + main_y1(d.Anz) + ")").attr("x2", main_width + main_x(d.Uhrzeit));
                     //focus.select(".y1").attr("transform", "translate(0, " + main_y1(d.Anz) + ")").attr("x1", main_x(d.Uhrzeit));
                    }
-                 
-                
-                    
-                    
+
+                // Mouse Click Event Handler function to afix the desired points of interest on the main graph
                 function mouseclicker(){
                     //window.alert("Enter dates of interest");
                     var x1 = main_x(Math.round(main_x.invert(d3.mouse(this)[0])))
                     //window.position=window.position.insert(0,main_x.invert(x1));
                     window.position.push(main_x.invert(x1));
                     
+                    // Prepare to add extra annotations if defined.
                     line_pos=$("#dialog").data("position").map(function(d){return d.date})
                     
+                    // Debug that process...
                     console.log(line_pos)
 
+                    // Actually at the extra annotations
                     main.append("g:line").attr("class","time_marker")
                     .data(line_pos)
                     .attr("x1", x1)
@@ -554,24 +688,33 @@
                     .attr("y2",main_height)
                     .attr("d","time_marker");
                     
+                    /********************************************************************
                     
-
+                    	Should the annotations supercede marking points on the curve?
+                    	Or is this being done each time because the process of afixing the
+                    	points removes the annotation lines?
+                    			
+                    *********************************************************************/
+                    
+                    // Update the Graph's form with the user's selection, 
+                    // so that other GUI elements can be correctly updated.
                     $("#container2").html("");
                     var week=parseInt(Math.round(main_x.invert(d3.mouse(this)[0])));
                     window.week=week;
                     //d3.select("#container2").append("p").text("t="+week+"\t"+data[week].id_them);
-                    
                     
                     window.id_them=data[week].id_them;
                     window.id_us=data[week].id_us;
                     var width=500, height=610;
                     
                
+                    // Define a force graph to display the graph at the identified instance in time.
                     var force = d3.layout.force()
                     .charge(-120)
                     .linkDistance(30)
                     .size([width, height]);
                     
+                    // Create the SVG elements for this Node Graph in another DIV
                     var svg2 = d3.select("#container2").append("svg")
                     .attr("width", width)
                     .attr("height", height)
@@ -580,32 +723,38 @@
                     .call(d3.behavior.zoom().on("zoom", redraw))
                     .append('svg:g');
                     
+                    // Create the display area for this Node Graph
                     svg2.append('svg:rect')
                     .attr('width', width)
                     .attr('height', height)
                     .attr('fill', 'white');
                     
+                    // Define a Draw Event Handler method
                     function redraw() {
                     svg2.attr("transform",
                               "translate(" + d3.event.translate + ")"
                               + " scale(" + d3.event.scale + ")");
                     }
 
-                    
-                    
+                    // Fetch the data identified by the user's interactions.                    
                     d3.json("network_retrieval?date="+week, function(error, graph) {
-                            force
+                    	
+                    	// Add the fectch data to the Node Graph instance.
+                        force
                             .nodes(graph.nodes)
                             .links(graph.links)
                             .start();
                             
-                            
+                            // Pull in additional node Label data
                             var employees_id=[];
                             d3.csv("employees_id.csv",function(data){
-                                   employees_id=data
+                            	
+                            	// Associate the fetched data with the array defined to manage it.
+                                employees_id=data
                                    
-                                   
-                            function node_adder(nodes){
+                                // Define a function to map this data set to the Graph data set.   
+                            	function node_adder(nodes){
+                            		
                                    for (var i=0; i < nodes.length; i++) {
                                         var index=findIndexByKeyValue(graph.nodes,"id",i)
                                         if(index!=null){
@@ -614,68 +763,74 @@
                                         }
                                    }
                                    
-                            node_adder(employees_id);
+                        // Request the mapping between the two data sets.
+                        node_adder(employees_id);
 
-
-                                
-                            var color = d3.scale.linear()
+                        // Create the Gradient for Node Coloring 
+                        var color = d3.scale.linear()
                             .domain([0, 1])
                             .range(["red", "black"]);
-                            
-                            
-                         
-                            
-                            var link = svg2.selectAll("line.link")
+
+                        // Define a SVG instance for the Links of the graphs
+                        var link = svg2.selectAll("line.link")
                             .data(graph.links)
                             .enter().append("svg:line")
                             .attr("class", "link");
-                         
                             
-                            var linkedByIndex = {};
-                            graph.links.forEach(function(d) {
+                        // Define an Object for managing mapping between nodes in the graph
+                        var linkedByIndex = {};
+                        
+                        // Define that mapping.
+                        graph.links.forEach(function(d) {
                                           linkedByIndex[d.source.id + "," + d.target.id] = 1;
                                           });
-                            
-                            
-                            
-                            function isConnected(a, b) {
+                              
+                        // Define a function to check if a pair of objects are linked     
+                        function isConnected(a, b) {
                             return linkedByIndex[a + "," + b] || linkedByIndex[b + "," + a];
                             }
-                            
-                            window.pink = [];
-                            window.baby_blue=[];
-                            graph.nodes.forEach(function(d){
-                                                if(isConnected(d.id,window.id_them))
-                                                window.pink.push(d.id)
-                                                
-                                                if(isConnected(d.id,window.id_us))
-                                                window.baby_blue.push(d.id)
-                                                })
                         
-                            
-                            var node = svg2.selectAll("g.node")
-                            .data(graph.nodes)
-                            .enter().append("svg:g")
-                            .attr("class", "node")
-                            .call(force.drag);
-                            
-                            
-                            
-                            node.append("svg:circle")
+                        // Clear the list of nodes identified
+                        window.pink = [];
+                        window.baby_blue=[];
+                        
+                        // Scan the nodes and assign them to an identifying collection
+                        graph.nodes.forEach(function(d){
+                        	
+                               	if(isConnected(d.id,window.id_them)) {
+                               		window.pink.push(d.id)
+                               	}
+                                                
+                                if(isConnected(d.id,window.id_us)) {
+                                	window.baby_blue.push(d.id)
+                                }
+                        });
+                        
+                       
+                       // Add the data set to the nodes so they'll render
+                       var node = svg2.selectAll("g.node")
+                            			.data(graph.nodes)
+                            		.enter().append("svg:g")
+                            			.attr("class", "node")
+                            			.call(force.drag);
+                       
+                       // Render the nodes
+                       node.append("svg:circle")
                             .attr("class", "node")
                                    .attr("r", function(d) {return 1.5*Math.sqrt(d.degree+1)})
                             .style("fill", function(d) { if(d.id==window.id_them) return "red"; else if (isConnected(d.id,window.id_them)) return "pink"; else if (d.id==window.id_us) return "blue";  else if (isConnected(d.id,window.id_us)) return "lightblue"; else
                                    return "black"; });
                             
-                            
-                            node.append("svg:text")
+                      
+                      // Add the labels for the nodes
+                      node.append("svg:text")
                             .attr("class", "nodetext")
                             .attr("dx", 12)
                             .attr("dy", ".35em")
                             .text(function(d) { return d.name});
 
-                            
-                            force.on("tick", function() {
+                      // Add the function that allows the force graph to reposition the Nodes of the graph      
+                      force.on("tick", function() {
                                      link.attr("x1", function(d) { return d.source.x; })
                                      .attr("y1", function(d) { return d.source.y; })
                                      .attr("x2", function(d) { return d.target.x; })
@@ -692,7 +847,9 @@
                 }
                     
             });
-                function brush() {
+			
+			// Define a function to add the annotations identified by the user.
+            function brush() {
                     
                     main_x.domain(brush.empty() ? mini_x.domain() : brush.extent());
                     //console.log(main_x.domain()+' '+window.position+' '+ main_x.invert(window.position)+' ' + main_x(main_x.invert(window.position)))
@@ -705,7 +862,7 @@
                 }
             }
             
-            
+            // Define function to scan an array to determine if it contains a specific instance.
             function contains(a, obj) {
                 for (var i = 0; i < a.length; i++) {
                     if (a[i] === obj) {
@@ -725,8 +882,11 @@
                 return null;
             }
             
+            //
             function graph_load(u,t,w){
-                $("#container2").html("");
+
+            	// Clear out the contents of the DIV displaying the Node Graph at an instance.
+            	$("#container2").html("");
                 var week=w
                 
                 var id_them=u;
@@ -734,10 +894,13 @@
                 var width=500, height=610;
                 var color = d3.scale.category20();
                 
-                
-                
                 var width=500, height=610;
                 
+                /***************************************************************************
+                	This block of logic looks like a copy of an earlier block of code,
+                	which implies it should be made into a function to be called in both
+                	places, if this assumption is correct.  (Graham, can you confirm this?)
+                ***************************************************************************/
                 
                 var force = d3.layout.force()
                 .charge(-120)
@@ -766,17 +929,21 @@
                 
                 
                 d3.json("network_retrieval?date="+week, function(error, graph) {
-                        force
+                	
+                	// Associate the fetched data to the Node Graph
+                    force
                         .nodes(graph.nodes)
                         .links(graph.links)
                         .start();
-                        
-                        var employees_id=[];
-                        d3.csv("employees_id.csv",function(data){
+                   
+                	// Define an array to manage the extract data
+                   	var employees_id=[];
+                	
+                	// Fetch Employee Information
+                    d3.csv("employees_id.csv",function(data){
                                employees_id=data
-                              
                   
-                               
+             
                         //adds the name to the graph.nodes
                         function node_adder(nodes){
                                for (var i=0; i < nodes.length; i++) {
@@ -786,16 +953,20 @@
                                     }
                                }
                         }
-                               
+
+                        // Do the mapping
                         node_adder(employees_id);
                     
                         var max=d3.max(graph.nodes, function(d){return d.eigcen;})
                         
-                       
+                       	// They (the two blocks) may not be same - the gradient's values seem to be different
+                       	// If that's the only difference then this could be converted into a parameter
+                       	// passed to the refactored function.
                         var color = d3.scale.linear()
                         .domain([0, max])
                         .range(["red","blue"]);
                         
+                        // Create the object to manage the links between the nodes 
                         var link = svg2.selectAll("line.link")
                         .data(graph.links)
                         .enter().append("svg:line")
@@ -807,50 +978,63 @@
                          .attr("y2", function(d) { return d.target.y; });
                          */
                         
-                        
+                        // Create the object to manage the nodes of the grapht
                         var node = svg2.selectAll("g.node")
                         .data(graph.nodes)
                         .enter().append("svg:g")
                         .attr("class", "node")
                         .call(force.drag);
                         
-                        var color_attribute=$(':checkbox').map(function () {      if(this.checked) {
-                                                                                            return this.value;
-                                                                      }
-                                                                                            }).get();
+                        // Create an alias to the coloring selection algorithm 
+                        var color_attribute=$(':checkbox').map(function () {
+									if(this.checked) {
+										return this.value;
+									}
+						}).get();
                                
                                
+                        // Create the object to render the nodes of the graph
                         node.append("svg:circle")
                         .attr("class", "node")
                                .attr("r", function(d){return 1.5*Math.sqrt(d.degree+1)})
                                //.attr("r",3)
-                        .style("fill", function(d) { if(d.id==window.id_them) return "red";  else if (d.id==window.id_us) return "blue"; else if (contains(window.pink,d.id)) return "pink";  else if (contains(window.baby_blue,d.id)) return "lightblue"; else
-                               return "black"; });
+                        .style("fill", function(d) { 
+                        					if(d.id==window.id_them) { 
+                        						return "red"; 
+                        					} else if (d.id==window.id_us) {
+                        						return "blue"; 
+                        					} else if (contains(window.pink,d.id)) {
+                        						return "pink";  
+                        					} else if (contains(window.baby_blue,d.id)) {
+                        						return "lightblue"; 
+                        					} else {
+                               					return "black"; 
+                               				}});
                         //.style("fill", function(d,i){return color(d.eigcen);});
                          
-                               if (color_attribute=="eig"){
-                        node.append("svg:circle")
-                        .attr("class", "node")
-                        .attr("r", function(d){return 1.5*Math.sqrt(d.degree+1)})
-                        .style("fill", function(d,i){return color(d.eigcen);});
-                               }
+                        // Manage the coloring of the node based on the user's selection (COLOR_ATTRIBUTE)
+                        if (color_attribute=="eig"){
+                        	node.append("svg:circle")
+		                        .attr("class", "node")
+        		                .attr("r", function(d){return 1.5*Math.sqrt(d.degree+1)})
+                		        .style("fill", function(d,i){return color(d.eigcen);});
+                        }
                                
-                               if (color_attribute=="bc"){
-                               node.append("svg:circle")
-                               .attr("class", "node")
-                               .attr("r", function(d){return 1.5*Math.sqrt(d.degree+1)})
-                               .style("fill", function(d,i){return color(d.betweenness);});
-                               }
+                        if (color_attribute=="bc"){
+                      		node.append("svg:circle")
+                            	.attr("class", "node")
+                               	.attr("r", function(d){return 1.5*Math.sqrt(d.degree+1)})
+                               	.style("fill", function(d,i){return color(d.betweenness);});
+                        }
 
-                        
+                        // Add the label to the node
                         node.append("svg:text")
-                        .attr("class", "nodetext")
-                        .attr("dx", 12)
-                        .attr("dy", ".35em")
-                        .text(function(d) { return d.name + ' ' +d.betweenness});
+                        	.attr("class", "nodetext")
+                        	.attr("dx", 12)
+                        	.attr("dy", ".35em")
+                        	.text(function(d) { return d.name + ' ' +d.betweenness});
                         
-                        
-                  
+						// Add the callback to allow the Force Graph to stablize
                         force.on("tick", function() {
                                  link.attr("x1", function(d) { return d.source.x; })
                                  .attr("y1", function(d) { return d.source.y; })
@@ -864,19 +1048,21 @@
                                            return 'translate(' + [d.x, d.y] + ')';
                                            });
                                  });
-                        
-                        
+
                         });
                         
-                         });
+            });
                 
             }
+                
+            // Add the event handler to the 'LEFT' Navigation button.
             $("#left").bind("click", function(event) {
                             window.week-=1
                             graph_load(window.id_us,window.id_them,window.week);
                             //$("#nav").append("<center><p> t="+window.week+"</p></center>");
                                      });
             
+            // Add the event handler to the 'RIGHT' Navigation button.
             $("#right").bind("click", function(event) {
                              window.week+=1
                              graph_load(window.id_us,window.id_them,window.week);
@@ -885,20 +1071,22 @@
                              //window.open(canvas.toDataURL(), 'new_window', 'width=310,height=30')
                             });
 
+            // Add the event handler to the Rendering Style Check List (this should be implemented as Radio Buttons)
             $(":checkbox").change(function(event) {
-                                  if(this.checked) {
-                                  var color_attribute=$(':checkbox').map(function () {      if(this.checked) {
-                                                                         return this.value;
-                                                                         }
-                                                                         }).text();
+         					if(this.checked) {
+                                  var color_attribute=$(':checkbox').map(function () {      
+                                	  		if(this.checked) {
+												return this.value;
+											}
+                                  	}).text();
                                   
                                   }
-                                  var selectedNodeCircles = d3.selectAll("g.node");
-                                  if (color_attribute=="eig"){
+                           var selectedNodeCircles = d3.selectAll("g.node");
+                           if (color_attribute=="eig"){
                                   selectedNodeCircles.transition().attr("r",10)
                                   
-                                  }
-                                  });
+                           }
+				});
             
         
            
